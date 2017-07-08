@@ -2,6 +2,8 @@ default: build
 
 kernel := target/kernel.bin
 iso := target/os.iso
+target := x86_64-fuzz_os
+rust_os := target/$(target)/release/libfuzz_os.a
 
 linker_script := src/asm/linker.ld
 grub_cfg := src/asm/grub.cfg
@@ -13,7 +15,7 @@ assembly_object_files := $(patsubst src/asm/%.asm, target/%.o, $(assembly_source
 build: $(kernel)
 
 clean:
-	@rm -r target
+	@xargo clean
 
 run: $(iso)
 	@qemu-system-x86_64 -cdrom $(iso)
@@ -27,8 +29,11 @@ $(iso): $(kernel) $(grub_cfg)
 	@grub-mkrescue -o $(iso) target/isofiles 2> /dev/null
 	@rm -r target/isofiles
 
-$(kernel): $(assembly_object_files) $(linker_script)
-	@ld -n -T $(linker_script) -o $(kernel) $(assembly_object_files)
+$(kernel): kernel $(assembly_object_files) $(linker_script)
+	@ld -n -T $(linker_script) -o $(kernel) $(assembly_object_files) $(rust_os)
+
+kernel:
+	@xargo build --release --target $(target)
 
 # compile assembly files
 target/%.o: src/asm/%.asm
