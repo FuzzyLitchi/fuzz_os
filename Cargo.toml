@@ -1,0 +1,7 @@
+[package]
+name = "fuzz_os"
+version = "0.1.0"
+authors = ["Polly Nielsen Boutet-Livoff <pollyboutet@gmail.com>"]
+
+[lib]
+crate-type = ["staticlib"]
