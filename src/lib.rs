@@ -14,6 +14,5 @@ extern crate rlibc;
 
 #[no_mangle]
 pub extern fn kmain() {
-    let x = ["Hello", "World", "!"];
-    let y = x;
+    let test = (0..3).flat_map(|x| 0..x).zip(0..);
 }
