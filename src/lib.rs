@@ -1,4 +1,4 @@
-#![feature(lang_items)]
+#![feature(lang_items, const_fn, unique)]
 #![no_std]
 
 #[lang = "eh_personality"]
@@ -11,8 +11,16 @@ pub extern fn panic_fmt() -> ! {
 }
 
 extern crate rlibc;
+extern crate volatile;
+extern crate spin;
+
+#[macro_use]
+mod vga_buffer;
 
 #[no_mangle]
-pub extern fn kmain() {
-    let test = (0..3).flat_map(|x| 0..x).zip(0..);
+pub extern fn kmain() -> ! {
+    vga_buffer::clear_screen();
+
+    println!("Hello {}{}", "World", '!');
+    loop {}
 }
