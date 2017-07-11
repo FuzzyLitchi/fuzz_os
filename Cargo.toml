@@ -5,3 +5,6 @@ authors = ["Emile Yvan Boutet Livoff <blemille@hotmail.com>"]
 
 [lib]
 crate-type = ["staticlib"]
+
+[dependencies]
+rlibc = "1.0"
