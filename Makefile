@@ -3,7 +3,7 @@ default: build
 kernel := target/kernel.bin
 iso := target/os.iso
 target := x86_64-fuzz_os
-rust_os := target/$(target)/release/libfuzz_os.a
+rust_os := target/$(target)/debug/libfuzz_os.a
 
 linker_script := src/asm/linker.ld
 grub_cfg := src/asm/grub.cfg
@@ -33,7 +33,7 @@ $(kernel): kernel $(assembly_object_files) $(linker_script)
 	@ld -n -T $(linker_script) -o $(kernel) $(assembly_object_files) $(rust_os)
 
 kernel:
-	@xargo build --release --target $(target)
+	@xargo build --target $(target)
 
 # compile assembly files
 target/%.o: src/asm/%.asm
