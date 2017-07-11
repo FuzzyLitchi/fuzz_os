@@ -30,7 +30,7 @@ $(iso): $(kernel) $(grub_cfg)
 	@rm -r target/isofiles
 
 $(kernel): kernel $(assembly_object_files) $(linker_script)
-	@ld -n -T $(linker_script) -o $(kernel) $(assembly_object_files) $(rust_os)
+	@ld -n --gc-section -T $(linker_script) -o $(kernel) $(assembly_object_files) $(rust_os)
 
 kernel:
 	@xargo build --target $(target)

@@ -10,7 +10,10 @@ pub extern fn panic_fmt() -> ! {
     loop {}
 }
 
+extern crate rlibc;
+
 #[no_mangle]
 pub extern fn kmain() {
-
+    let x = ["Hello", "World", "!"];
+    let y = x;
 }

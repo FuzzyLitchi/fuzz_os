@@ -5,3 +5,6 @@ authors = ["Polly Nielsen Boutet-Livoff <pollyboutet@gmail.com>"]
 
 [lib]
 crate-type = ["staticlib"]
+
+[dependencies]
+rlibc = "1.0"
