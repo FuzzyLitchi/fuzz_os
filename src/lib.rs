@@ -8,6 +8,9 @@ extern crate multiboot2;
 
 #[macro_use]
 mod vga_buffer;
+mod memory;
+
+use memory::FrameAllocator;
 
 #[lang = "eh_personality"]
 extern fn eh_personality() {}
@@ -37,6 +40,20 @@ pub extern fn kmain(multiboot_info_addr: usize) -> ! {
     .min().unwrap();
     let kernel_end = elf_sections_tag.sections().map(|s| s.addr + s.size)
         .max().unwrap();
+
+    let multiboot_start = multiboot_info_addr;
+    let multiboot_end = multiboot_start + (boot_info.total_size as usize);
+
+    let mut frame_allocator = memory::AreaFrameAllocator::new(
+    kernel_start as usize, kernel_end as usize, multiboot_start,
+    multiboot_end, memory_map_tag.memory_areas());
+
+    for i in 0.. {
+        if let None = frame_allocator.allocate_frame() {
+            println!("allocated {} frames", i);
+            break;
+        }
+    }
 
     loop {}
 }
