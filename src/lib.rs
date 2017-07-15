@@ -21,7 +21,7 @@ pub extern fn panic_fmt(fmt: core::fmt::Arguments, file: &'static str, line: u32
 }
 
 static VALUE_START: usize = 0x150000;
-static VALUE_SIZE: usize = 1024;
+static VALUE_SIZE: usize = 10;
 
 #[no_mangle]
 pub extern fn kmain(multiboot_info_addr: usize) -> ! {
@@ -38,9 +38,17 @@ pub extern fn kmain(multiboot_info_addr: usize) -> ! {
         let tmp = second;
         second = first.wrapping_add(second);
         first = tmp;
+
+        pointer += 8;
     }
 
     println!("Successfuly saved {} values", VALUE_SIZE);
+
+    let mut pointer = VALUE_START;
+    for _ in 0..VALUE_SIZE {
+        println!("{}", unsafe{ *(pointer as *mut u64) });
+        pointer += 8;
+    }
 
     loop {}
 }
