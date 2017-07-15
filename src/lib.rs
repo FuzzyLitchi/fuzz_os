@@ -20,23 +20,27 @@ pub extern fn panic_fmt(fmt: core::fmt::Arguments, file: &'static str, line: u32
     loop{}
 }
 
+static VALUE_START: usize = 0x150000;
+static VALUE_SIZE: usize = 1024;
+
 #[no_mangle]
 pub extern fn kmain(multiboot_info_addr: usize) -> ! {
     vga_buffer::clear_screen();
 
-    println!("Hello {}{}", "World", '!');
+    println!("Booted");
 
-    let boot_info = unsafe{ multiboot2::load(multiboot_info_addr) };
-    let memory_map_tag = boot_info.memory_map_tag()
-        .expect("Memory map tag required");
+    let mut pointer = VALUE_START;
+    let mut first: u64 = 0;
+    let mut second: u64 = 1;
+    for _ in 0..VALUE_SIZE {
+        unsafe{ *(pointer as *mut _) = first };
 
-    let elf_sections_tag = boot_info.elf_sections_tag()
-    .expect("Elf-sections tag required");
+        let tmp = second;
+        second = first.wrapping_add(second);
+        first = tmp;
+    }
 
-    let kernel_start = elf_sections_tag.sections().map(|s| s.addr)
-    .min().unwrap();
-    let kernel_end = elf_sections_tag.sections().map(|s| s.addr + s.size)
-        .max().unwrap();
+    println!("Successfuly saved {} values", VALUE_SIZE);
 
     loop {}
 }
