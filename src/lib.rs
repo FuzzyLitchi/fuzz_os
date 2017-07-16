@@ -7,6 +7,7 @@ extern crate spin;
 extern crate multiboot2;
 #[macro_use]
 extern crate bitflags;
+extern crate x86_64;
 
 #[macro_use]
 mod vga_buffer;
@@ -46,16 +47,13 @@ pub extern fn kmain(multiboot_info_addr: usize) -> ! {
     let multiboot_start = multiboot_info_addr;
     let multiboot_end = multiboot_start + (boot_info.total_size as usize);
 
-    let mut frame_allocator = memory::AreaFrameAllocator::new(
-    kernel_start as usize, kernel_end as usize, multiboot_start,
-    multiboot_end, memory_map_tag.memory_areas());
+    let mut frame_allocator = memory::AreaFrameAllocator::new(kernel_start as usize,
+                                                              kernel_end as usize,
+                                                              multiboot_start,
+                                                              multiboot_end,
+                                                              memory_map_tag.memory_areas());
 
-    for i in 0.. {
-        if let None = frame_allocator.allocate_frame() {
-            println!("allocated {} frames", i);
-            break;
-        }
-    }
+    memory::test_paging(&mut frame_allocator);
 
     loop {}
 }
