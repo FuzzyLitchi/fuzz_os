@@ -1,17 +1,20 @@
 mod entry;
 mod table;
+mod temporary_page;
 
 pub use self::entry::*;
 use memory::{Frame, PAGE_SIZE};
 use self::table::{Table, Level4};
 use core::ptr::Unique;
 use memory::FrameAllocator;
+use self::temporary_page::TemporaryPage;
 
 const ENTRY_COUNT: usize = 512;
 
 pub type PhysicalAddress = usize;
 pub type VirtualAddress = usize;
 
+#[derive(Debug, Clone, Copy)]
 pub struct Page {
    number: usize,
 }
@@ -157,6 +160,29 @@ impl ActivePageTable {
 
         // TODO free p(1,2,3) table if empty
         allocator.deallocate_frame(frame);
+    }
+}
+
+pub struct InactivePageTable {
+    p4_frame: Frame,
+}
+
+impl InactivePageTable {
+    pub fn new(frame: Frame,
+               active_table: &mut ActivePageTable,
+               temporary_page: &mut TemporaryPage)
+               -> InactivePageTable {
+        {
+            let table = temporary_page.map_table_frame(frame.clone(),
+                active_table);
+            // now we are able to zero the table
+            table.zero();
+            // set up recursive mapping for the table
+            table[511].set(frame.clone(), PRESENT | WRITABLE);
+        }
+        temporary_page.unmap(active_table);
+
+        InactivePageTable { p4_frame: frame }
     }
 }
 
